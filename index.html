@@ -80,10 +80,22 @@
       <div class="right" id="iframe-container"></div>
     </div>
     <script type="text/javascript">
+      function getParameterByName(name, url = window.location.href) {
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+        var results = regex.exec(url);
+        if (!results) {
+          return null;
+        }
+        var value = results[2];
+        return decodeURIComponent((value || "").replace(/\+/g, " "));
+      }
+
       var button = document.getElementById("show-button");
       var iframeContainer = document.getElementById("iframe-container");
       var input = document.getElementById("url-input");
-      button.addEventListener("click", function () {
+
+      function updateIframe(url) {
         iframeContainer.innerHTML = "";
         var iframe = document.createElement("iframe");
         iframe.setAttribute("sandbox", "allow-scripts");
@@ -91,9 +103,19 @@
         iframe.setAttribute("referrer-policy", "no-referrer");
         iframe.setAttribute("title", "News");
         iframe.setAttribute("loading", "lazy");
-        iframe.setAttribute("src", input.value);
+        iframe.setAttribute("src", url);
         iframeContainer.appendChild(iframe);
+      }
+
+      button.addEventListener("click", function () {
+        updateIframe(input.value);
       });
+
+      var presetUrl = getParameterByName("url");
+      if (presetUrl) {
+        updateIframe(presetUrl);
+        input.value = presetUrl;
+      }
     </script>
   </body>
 </html>
